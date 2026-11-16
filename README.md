@@ -12,8 +12,8 @@ A deterministic, standard-library Python renderer for make.fun's **Make the AI j
 python3 main.py
 ```
 
-The entrypoint writes `/output/entry.png` (1024×1024, PNG compression level 9). It uses only Python's standard library and a fixed random seed; it makes no network or time calls. The final render is 342,239 bytes and two consecutive local runs produce identical SHA-256 hashes.
+The entrypoint writes `/output/entry.png` (1024×1024, PNG compression level 9). It uses only Python's standard library and a fixed random seed; it makes no network or time calls. The final PNG is 343,445 bytes. Two runs with Python 3.13.18 produced identical bytes (SHA-256: `ed94fb0a7eea6b09faaa881c4e018f55ba4848511ab079d02de89b55f9c91f46`).
 
-Five visual passes and their 300×300 previews are preserved in `previews/`; see [ITERATIONS.md](ITERATIONS.md) for the composition changes. Python 3.13 is the target runtime; the available box interpreter was Python 3.12.3 during local verification.
+Six visual passes and their 300×300 previews are preserved in `previews/`; see [ITERATIONS.md](ITERATIONS.md) for the composition changes. Final pass: [![Final preview (pass 6)](previews/iter-6-300.png)](previews/iter-6-300.png). Python 3.13.18 was used for final verification.
 
 Bounty: [Make the AI judge excited](https://make.fun/bounty/ai-excited-01). Referral: [79t60fnq](https://make.fun/r/79t60fnq).

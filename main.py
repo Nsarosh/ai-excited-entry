@@ -61,6 +61,7 @@ def render(variant=5):
         1: (512, 424, 250, 72, 1.00), 2: (565, 414, 270, 78, 1.00),
         3: (565, 414, 270, 78, 1.18), 4: (585, 412, 286, 82, 1.18),
         5: (585, 412, 286, 82, 1.12),
+        6: (585, 412, 286, 82, 1.12),
     }
     cx, cy, radius, text_y, contrast = configs.get(variant, configs[5])
 
@@ -123,7 +124,7 @@ def render(variant=5):
             dx=(x-cx)/radius; dy=(y-cy)/(radius*.82); d=math.hypot(dx,dy)
             if d < 1:
                 hot=max(0,1-math.hypot((x-cx+20)/120,(y-cy-18)/104))
-                if variant == 5:
+                if variant in (5, 6):
                     rim=max(0,min(1,(d-.48)/.47))
                     col=(int(255-86*rim),int(67-50*rim),int(24+91*rim))
                     col=(min(255,col[0]+int(22*hot)),min(255,col[1]+int(110*hot)),min(255,col[2]+int(160*hot)))
@@ -142,12 +143,26 @@ def render(variant=5):
                 t=s/max(1,steps); disk(round(x0+(x1-x0)*t),round(y0+(y1-y0)*t),2.5,(255,250,205),.9)
 
     # Core flare centered just above the midpoint, with a sharp white nucleus.
-    if variant == 5:
+    if variant in (5, 6):
         disk(cx,cy-18,132,(255,88,28),.30); disk(cx,cy-18,88,(255,190,82),.55); disk(cx,cy-18,51,(255,244,199),.94)
         disk(cx-5,cy-21,22,(255,255,255),1)
     else:
         disk(cx,cy-18,103,(255,110,66),.35); disk(cx,cy-18,59,(255,208,130),.62); disk(cx,cy-18,28,(255,255,237),.98)
         disk(cx-5,cy-21,11,(255,255,255),1)
+
+    # One clean breach cuts through the nucleus: a dark, angular doorway with
+    # restrained cyan and gold edges. Its narrow width leaves the hot core visible.
+    opening = [(cx-19,cy-91),(cx-7,cy-59),(cx-22,cy-34),(cx-4,cy-8),
+               (cx-15,cy+18),(cx+3,cy+43),(cx-2,cy+78)]
+    def stroke(points, width, color, opacity):
+        for (x0,y0),(x1,y1) in zip(points,points[1:]):
+            steps=max(abs(x1-x0),abs(y1-y0))
+            for s in range(steps+1):
+                t=s/max(1,steps)
+                disk(round(x0+(x1-x0)*t),round(y0+(y1-y0)*t),width,color,opacity)
+    stroke(opening, 8, (2,4,17), 1)
+    stroke([(x-7,y) for x,y in opening], 2.2, (47,224,255), .96)
+    stroke([(x+7,y) for x,y in opening], 2.2, (255,171,58), .98)
 
     # Sparks and a few shards drift away from the threshold.
     for i in range(108):
@@ -171,20 +186,20 @@ def render(variant=5):
 
     # Lone person on the edge, facing the opening: a restrained geometric silhouette.
     fx,fy=337,833
-    if variant == 5:
-        head, torso_top, torso_bottom, leg_len = 11, 34, 6, 36
+    if variant in (5, 6):
+        head, torso_top, torso_bottom, leg_len = 11, 36, 6, 39
     else:
         head, torso_top, torso_bottom, leg_len = 8, 24, 4, 26
     disk(fx,fy-torso_top-head+1,head,(2,4,12),1)
     # torso, coat, legs and one slightly raised arm
     for yy in range(fy-torso_top,fy+torso_bottom):
-        half=(6 if yy<fy-7 else 11) if variant == 5 else (4 if yy<fy-5 else 8)
+        half=(7 if yy<fy-7 else 12) if variant == 6 else ((6 if yy<fy-7 else 11) if variant == 5 else (4 if yy<fy-5 else 8))
         for xx in range(fx-half,fx+half+1): blend(xx,yy,(2,4,12),1)
     for q in range(leg_len):
         blend(fx-5-q//12,fy+q,(2,4,12),1); blend(fx+5+q//14,fy+q,(2,4,12),1)
-    for q in range(22 if variant == 5 else 17): blend(fx+5+q//7,fy-torso_top+7-q,(2,4,12),1)
+    for q in range(24 if variant in (5, 6) else 17): blend(fx+5+q//7,fy-torso_top+7-q,(2,4,12),1)
     # Rim light traces one shoulder, preserving the silhouette at thumbnail scale.
-    for q in range(24 if variant == 5 else 20): blend(fx+8,fy-torso_top+8+q,(91,205,229),.72 if variant == 5 else .55)
+    for q in range(26 if variant in (5, 6) else 20): blend(fx+9,fy-torso_top+8+q,(91,205,229),.76 if variant in (5, 6) else .55)
 
     # Small hand-built label, on a dark plaque with broad letterforms for 300px legibility.
     label="JUDGE: YOU JUST SAT UP."
@@ -205,7 +220,7 @@ def render(variant=5):
 
 
 def main():
-    variant=5; dest="/output/entry.png"
+    variant=6; dest="/output/entry.png"
     args=sys.argv[1:]
     if args and args[0].isdigit(): variant=int(args.pop(0))
     if args: dest=args[0]
